@@ -72,15 +72,15 @@ async function checkPositions() {
     }
 }
 
-// // Schedule the task to run every 5 minutes
-// cron.schedule('*/5 * * * *', () => {
-//     checkPositions();
-// });
-
-// Schedule the task to run every 30 seconds
-cron.schedule('*/30 * * * * *', () => {
+// Schedule the task to run every 5 minutes
+cron.schedule('*/5 * * * *', () => {
     checkPositions();
 });
+
+// Schedule the task to run every 30 seconds
+// cron.schedule('*/30 * * * * *', () => {
+//     checkPositions();
+// });
 
 
 // Initial run
