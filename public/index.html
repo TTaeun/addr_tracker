@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>지갑 주소 추적기</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>지갑 주소 추적기</h1>
+    <form id="addressForm">
+        <label for="category">구분:</label>
+        <input type="text" id="category" name="category" required><br>
+        <label for="name">이름:</label>
+        <input type="text" id="name" name="name" required><br>
+        <label for="address">주소:</label>
+        <input type="text" id="address" name="address" required><br>
+        <button type="submit">추가</button>
+    </form>
+    <h2>등록된 주소 목록</h2>
+    <table id="addressTable">
+        <thead>
+            <tr>
+                <th>구분</th>
+                <th>이름</th>
+                <th>주소</th>
+                <th>삭제</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 주소 목록이 여기에 추가됩니다. -->
+        </tbody>
+    </table>
+    <script>
+        async function fetchAddresses() {
+            const response = await fetch('/addresses');
+            const addresses = await response.json();
+            const tbody = document.querySelector('#addressTable tbody');
+            tbody.innerHTML = '';
+            addresses.forEach(({ category, name, address }) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${category}</td>
+                    <td>${name}</td>
+                    <td>${address}</td>
+                    <td><button onclick="deleteAddress('${address}')">삭제</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        document.getElementById('addressForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const category = document.getElementById('category').value;
+            const name = document.getElementById('name').value;
+            const address = document.getElementById('address').value;
+            await fetch('/add-address', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category, name, address })
+            });
+            fetchAddresses();
+        });
+
+        async function deleteAddress(address) {
+            await fetch('/delete-address', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ address })
+            });
+            fetchAddresses();
+        }
+
+        // Initial fetch of addresses
+        fetchAddresses();
+    </script>
+</body>
+</html> 
