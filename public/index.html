@@ -3,80 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>지갑 주소 추적기</title>
+    <title>Hyperliquid 지갑 추적 시스템</title>
     <style>
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; }
-        th { background-color: #f2f2f2; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .address-list {
+            margin-top: 30px;
+        }
+        .address-item {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background-color: #da190b;
+        }
     </style>
 </head>
 <body>
-    <h1>지갑 주소 추적기</h1>
-    <form id="addressForm">
-        <label for="category">구분:</label>
-        <input type="text" id="category" name="category" required><br>
-        <label for="name">이름:</label>
-        <input type="text" id="name" name="name" required><br>
-        <label for="address">주소:</label>
-        <input type="text" id="address" name="address" required><br>
-        <button type="submit">추가</button>
-    </form>
-    <h2>등록된 주소 목록</h2>
-    <table id="addressTable">
-        <thead>
-            <tr>
-                <th>구분</th>
-                <th>이름</th>
-                <th>주소</th>
-                <th>삭제</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- 주소 목록이 여기에 추가됩니다. -->
-        </tbody>
-    </table>
+    <div class="container">
+        <h1>Hyperliquid 지갑 추적 시스템</h1>
+        
+        <form id="addressForm">
+            <div class="form-group">
+                <label for="category">구분</label>
+                <select id="category" required>
+                    <option value="주요">주요</option>
+                    <option value="일반">일반</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="name">이름</label>
+                <input type="text" id="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="address">지갑 주소</label>
+                <input type="text" id="address" required>
+            </div>
+            
+            <button type="submit">지갑 추가</button>
+        </form>
+        
+        <div class="address-list" id="addressList">
+            <!-- 주소 목록이 여기에 동적으로 추가됩니다 -->
+        </div>
+    </div>
+
     <script>
-        async function fetchAddresses() {
-            const response = await fetch('/addresses');
-            const addresses = await response.json();
-            const tbody = document.querySelector('#addressTable tbody');
-            tbody.innerHTML = '';
-            addresses.forEach(({ category, name, address }) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${category}</td>
-                    <td>${name}</td>
-                    <td>${address}</td>
-                    <td><button onclick="deleteAddress('${address}')">삭제</button></td>
+        // 주소 목록 로드
+        async function loadAddresses() {
+            try {
+                const response = await fetch('/api/addresses');
+                const addresses = await response.json();
+                displayAddresses(addresses);
+            } catch (error) {
+                console.error('주소 목록 로드 실패:', error);
+            }
+        }
+
+        // 주소 목록 표시
+        function displayAddresses(addresses) {
+            const addressList = document.getElementById('addressList');
+            addressList.innerHTML = '';
+            
+            addresses.forEach(addr => {
+                const div = document.createElement('div');
+                div.className = 'address-item';
+                div.innerHTML = `
+                    <div>
+                        <strong>${addr.category}</strong> - ${addr.name}<br>
+                        <small>${addr.address}</small>
+                    </div>
+                    <button class="delete-btn" onclick="deleteAddress('${addr.address}')">삭제</button>
                 `;
-                tbody.appendChild(row);
+                addressList.appendChild(div);
             });
         }
 
-        document.getElementById('addressForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
+        // 주소 추가
+        document.getElementById('addressForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
             const category = document.getElementById('category').value;
             const name = document.getElementById('name').value;
             const address = document.getElementById('address').value;
-            await fetch('/add-address', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ category, name, address })
-            });
-            fetchAddresses();
+            
+            try {
+                const response = await fetch('/api/addresses', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ category, name, address })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('지갑이 추가되었습니다.');
+                    document.getElementById('addressForm').reset();
+                    loadAddresses();
+                } else {
+                    alert(result.error || '지갑 추가에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('지갑 추가 실패:', error);
+                alert('지갑 추가에 실패했습니다.');
+            }
         });
 
+        // 주소 삭제
         async function deleteAddress(address) {
-            await fetch('/delete-address', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ address })
-            });
-            fetchAddresses();
+            if (!confirm('정말로 이 지갑을 삭제하시겠습니까?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/addresses/${address}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('지갑이 삭제되었습니다.');
+                    loadAddresses();
+                } else {
+                    alert(result.error || '지갑 삭제에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('지갑 삭제 실패:', error);
+                alert('지갑 삭제에 실패했습니다.');
+            }
         }
 
-        // Initial fetch of addresses
-        fetchAddresses();
+        // 초기 주소 목록 로드
+        loadAddresses();
     </script>
 </body>
 </html> 

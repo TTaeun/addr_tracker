@@ -1,87 +1,167 @@
 require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const fetch = require('node-fetch');
 const cron = require('node-cron');
 
-const addressesFilePath = path.join(__dirname, 'addresses.json');
+// 상태 파일 경로
+const STATE_FILE = path.join(__dirname, 'state.json');
+const ADDRESSES_FILE = path.join(__dirname, 'addresses.json');
 
-// Load addresses from file
-function loadAddresses() {
-    if (fs.existsSync(addressesFilePath)) {
-        const data = fs.readFileSync(addressesFilePath);
-        return JSON.parse(data);
-    }
-    return [];
+// 상태 초기화
+let currentState = {};
+if (fs.existsSync(STATE_FILE)) {
+    currentState = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
 }
 
-// Function to fetch open positions from Hyperliquid API
+// 주소 목록 로드
+let addresses = [];
+if (fs.existsSync(ADDRESSES_FILE)) {
+    addresses = JSON.parse(fs.readFileSync(ADDRESSES_FILE, 'utf8'));
+}
+
+// Hyperliquid API 호출 함수
 async function fetchOpenPositions(address) {
-    const response = await fetch('https://api.hyperliquid.xyz/info', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'clearinghouseState', user: address })
-    });
-
-    if (!response.ok) {
-        throw new Error(`Failed to fetch positions: ${response.statusText}`);
-    }
-
-    const text = await response.text();
     try {
-        return JSON.parse(text);
+        const response = await fetch(`https://api.hyperliquid.xyz/info`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: "openPositions",
+                user: address
+            })
+        });
+        return await response.json();
     } catch (error) {
-        throw new Error(`Failed to parse JSON: ${text}`);
+        console.error(`Error fetching positions for ${address}:`, error);
+        return [];
     }
 }
 
-async function sendToGAS(data) {
-    
-    const gasUrl = process.env.GAS_URL;
-    console.log('GAS URL:', gasUrl);
-
+// Telegram 알림 전송
+async function sendTelegramNotification(message) {
     try {
-        const response = await fetch(gasUrl, {
+        const response = await fetch(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: process.env.CHAT_ID,
+                text: message,
+                parse_mode: 'Markdown'
+            })
+        });
+        return await response.json();
+    } catch (error) {
+        console.error('Error sending Telegram notification:', error);
+    }
+}
+
+// Google Sheets 업데이트
+async function updateGoogleSheets(data) {
+    try {
+        const response = await fetch(process.env.GAS_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
-        console.log('Response status:', response.status);  // 응답 상태 코드 출력
-        if (!response.ok) {
-            throw new Error(`Failed to send data to GAS: ${response.statusText}`);
-        }
-        console.log('Data sent to GAS successfully');
+        return await response.json();
     } catch (error) {
-        console.error('Error sending data to GAS:', error);
+        console.error('Error updating Google Sheets:', error);
     }
 }
 
-// Function to check positions every 5 minutes
-async function checkPositions() {
-    const addresses = loadAddresses();
-    for (const { category, name, address } of addresses) {
-        try {
-            const positions = await fetchOpenPositions(address);
-            console.log(`Positions for ${address}:`, positions);
-            // Send position data to GAS with category and name
-            await sendToGAS({ category, name, address, positions });
-            // Compare with previous positions and handle changes
-        } catch (error) {
-            console.error(`Error fetching positions for ${address}:`, error);
+// 상태 비교 및 변경사항 감지
+function detectChanges(oldState, newState) {
+    const changes = [];
+    
+    // 새로운 포지션 확인
+    for (const [key, value] of Object.entries(newState)) {
+        if (!oldState[key]) {
+            changes.push({
+                type: 'NEW',
+                key,
+                value
+            });
+        } else if (JSON.stringify(oldState[key]) !== JSON.stringify(value)) {
+            changes.push({
+                type: 'UPDATE',
+                key,
+                oldValue: oldState[key],
+                newValue: value
+            });
         }
     }
+    
+    // 종료된 포지션 확인
+    for (const key of Object.keys(oldState)) {
+        if (!newState[key]) {
+            changes.push({
+                type: 'CLOSE',
+                key,
+                value: oldState[key]
+            });
+        }
+    }
+    
+    return changes;
 }
 
-// Schedule the task to run every 5 minutes
-cron.schedule('*/5 * * * *', () => {
-    checkPositions();
-});
+// 메인 추적 함수
+async function trackPositions() {
+    console.log('Starting position tracking...');
+    const newState = {};
+    
+    for (const address of addresses) {
+        const positions = await fetchOpenPositions(address);
+        
+        for (const position of positions) {
+            const key = `${address}::${position.coin}`;
+            newState[key] = {
+                side: position.side,
+                sz: position.sz,
+                entry: position.entry,
+                liquidation: position.liquidation
+            };
+        }
+    }
+    
+    // 변경사항 감지
+    const changes = detectChanges(currentState, newState);
+    
+    // 변경사항이 있으면 알림 전송 및 시트 업데이트
+    if (changes.length > 0) {
+        for (const change of changes) {
+            let message = '';
+            switch (change.type) {
+                case 'NEW':
+                    message = `📥 ${change.key.split('::')[1]} ${change.value.side} 진입\n지갑: ${change.key.split('::')[0]}\n사이즈: ${change.value.sz}`;
+                    break;
+                case 'UPDATE':
+                    message = `⬆️ ${change.key.split('::')[1]} ${change.value.side} 수량 변경\n총: ${change.newValue.sz}`;
+                    break;
+                case 'CLOSE':
+                    message = `❌ ${change.key.split('::')[1]} 포지션 종료`;
+                    break;
+            }
+            await sendTelegramNotification(message);
+        }
+        
+        // Google Sheets 업데이트
+        await updateGoogleSheets({
+            currentState: newState,
+            changes: changes
+        });
+    }
+    
+    // 현재 상태 저장
+    currentState = newState;
+    fs.writeFileSync(STATE_FILE, JSON.stringify(currentState, null, 2));
+    
+    console.log('Position tracking completed.');
+}
 
-// Schedule the task to run every 30 seconds
-// cron.schedule('*/30 * * * * *', () => {
-//     checkPositions();
-// });
+// 5분마다 실행
+cron.schedule('*/5 * * * *', trackPositions);
 
-
-// Initial run
-checkPositions(); 
+// 초기 실행
+trackPositions(); 
