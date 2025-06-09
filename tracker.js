@@ -1,7 +1,7 @@
 require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const fetch = require('node-fetch');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const cron = require('node-cron');
 
 // 상태 파일 경로
@@ -23,14 +23,19 @@ if (fs.existsSync(ADDRESSES_FILE)) {
 // Hyperliquid API 호출 함수
 async function fetchOpenPositions(address) {
     try {
+        const requestBody = {
+            type: "clearinghouseState",
+            user: address.address
+        };
+
+        console.log('Request Body:', JSON.stringify(requestBody));
+
         const response = await fetch(`https://api.hyperliquid.xyz/info`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: "openPositions",
-                user: address
-            })
+            body: JSON.stringify(requestBody)
         });
+
         return await response.json();
     } catch (error) {
         console.error(`Error fetching positions for ${address}:`, error);
@@ -114,13 +119,15 @@ async function trackPositions() {
     for (const address of addresses) {
         const positions = await fetchOpenPositions(address);
         
-        for (const position of positions) {
-            const key = `${address}::${position.coin}`;
+        for (const  assetPosition of positions.assetPositions) {
+            const position = assetPosition.position;
+            if(!position) continue;
+
+            const key = `${address.name}::${address.address}::${position.coin}`;
             newState[key] = {
-                side: position.side,
-                sz: position.sz,
-                entry: position.entry,
-                liquidation: position.liquidation
+                size: position.szi,
+                entry: position.entryPx,
+                liquidation: position.liquidationPx
             };
         }
     }
@@ -134,23 +141,23 @@ async function trackPositions() {
             let message = '';
             switch (change.type) {
                 case 'NEW':
-                    message = `📥 ${change.key.split('::')[1]} ${change.value.side} 진입\n지갑: ${change.key.split('::')[0]}\n사이즈: ${change.value.sz}`;
+                    message = `📥 ${change.key.split('::')[2]} ${change.value.size} 진입\n지갑: ${change.key.split('::')[1]}\n사이즈: ${change.value.size}`;
                     break;
                 case 'UPDATE':
-                    message = `⬆️ ${change.key.split('::')[1]} ${change.value.side} 수량 변경\n총: ${change.newValue.sz}`;
+                    message = `⬆️ ${change.key.split('::')[2]} ${change.value.size} 수량 변경\n총: ${change.newValue.size}`;
                     break;
                 case 'CLOSE':
-                    message = `❌ ${change.key.split('::')[1]} 포지션 종료`;
+                    message = `❌ ${change.key.split('::')[2]} 포지션 종료`;
                     break;
             }
             await sendTelegramNotification(message);
         }
         
-        // Google Sheets 업데이트
-        await updateGoogleSheets({
-            currentState: newState,
-            changes: changes
-        });
+        // // Google Sheets 업데이트
+        // await updateGoogleSheets({
+        //     currentState: newState,
+        //     changes: changes
+        // });
     }
     
     // 현재 상태 저장
