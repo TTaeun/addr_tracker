@@ -141,13 +141,13 @@ async function trackPositions() {
             let message = '';
             switch (change.type) {
                 case 'NEW':
-                    message = `📥 ${change.key.split('::')[2]} ${change.value.size} 진입\n지갑: ${change.key.split('::')[1]}\n사이즈: ${change.value.size}`;
+                    message = `📥 ${change.key.split('::')[2]} ${change.value.size} 진입\n지갑: ${change.key.split('::')[1]}\n사이즈: ${change.value.size}\n진입가: ${change.value.entry}\n청산가: ${change.value.liquidation}`;
                     break;
                 case 'UPDATE':
-                    message = `⬆️ ${change.key.split('::')[2]} ${change.value.size} 수량 변경\n총: ${change.newValue.size}`;
+                    message = `⬆️ ${change.key.split('::')[2]} ${change.value.size} 수량 변경\n총: ${change.newValue.size}\n진입가: ${change.newValue.entry}\n청산가: ${change.newValue.liquidation}`;
                     break;
                 case 'CLOSE':
-                    message = `❌ ${change.key.split('::')[2]} 포지션 종료`;
+                    message = `❌ ${change.key.split('::')[2]} 포지션 종료\n사이즈: ${change.value.size}\n진입가: ${change.value.entry}\n청산가: ${change.value.liquidation}`;
                     break;
             }
             await sendTelegramNotification(message);
