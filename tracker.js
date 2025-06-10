@@ -29,7 +29,7 @@ async function fetchOpenPositions(address) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                type: "openPositions",
+                type: "clearinghouseState",
                 user: address
             })
         });
