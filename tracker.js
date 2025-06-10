@@ -11,14 +11,23 @@ const ADDRESSES_FILE = path.join(__dirname, 'addresses.json');
 
 // 상태 초기화
 let currentState = {};
+let addresses = [];
 if (fs.existsSync(STATE_FILE)) {
     currentState = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
 }
 
 // 주소 목록 로드
-let addresses = [];
-if (fs.existsSync(ADDRESSES_FILE)) {
-    addresses = JSON.parse(fs.readFileSync(ADDRESSES_FILE, 'utf8'));
+async function loadAddresses() {
+    try {
+        const response = await fetch(process.env.GAS_URL); // GAS 웹 앱 URL
+        if (!response.ok) {
+            throw new Error('Failed to fetch addresses from Google Sheets');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error loading addresses:', error);
+        return [];
+    }
 }
 
 // Hyperliquid API 호출 함수
@@ -62,24 +71,6 @@ async function sendTelegramNotification(message) {
         logger.error('Error sending Telegram notification:', { error: error.message, stack: error.stack });
     }
 }
-
-// Google Sheets 업데이트
-async function updateGoogleSheets(data) {
-    try {
-        logger.info('Updating Google Sheets', { data });
-        const response = await fetch(process.env.GAS_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        const result = await response.json();
-        logger.debug('Google Sheets updated', { result });
-        return result;
-    } catch (error) {
-        logger.error('Error updating Google Sheets:', { error: error.message, stack: error.stack });
-    }
-}
-
 // 상태 비교 및 변경사항 감지
 function detectChanges(oldState, newState) {
     const changes = [];
@@ -92,7 +83,7 @@ function detectChanges(oldState, newState) {
                 key,
                 value
             });
-        } else if (JSON.stringify(oldState[key]) !== JSON.stringify(value)) {
+        } else if (oldState[key].size !== value.size) {
             changes.push({
                 type: 'UPDATE',
                 key,
@@ -121,16 +112,20 @@ async function trackPositions() {
     logger.info('Starting position tracking...');
     const newState = {};
     
-    for (const address of addresses) {
+    for (const val of addresses) {
+        const address = val.address;
+        const name = val.name;
         const positions = await fetchOpenPositions(address);
         
-        for (const position of positions) {
-            const key = `${address.name}::${address.address}::${position.coin}`;
+        for (const val of positions.assetPositions) {
+            const position = val.position;
+            const coin = position.coin;
+            const key = `${name}::${address}::${coin}`;
             newState[key] = {
-                side: position.side,
-                sz: position.sz,
-                entry: position.entry,
-                liquidation: position.liquidation
+                size: Math.floor(position.szi * 100) / 100,
+                leverage: position.maxLeverage,
+                entry: Math.floor(position.entryPx * 100) / 100,
+                liquidation: Math.floor(position.liquidationPx * 100) / 100
             };
         }
     }
@@ -147,10 +142,11 @@ async function trackPositions() {
             
             switch (change.type) {
                 case 'NEW':
-                    message = `📥 ${name}의 ${coin} ${change.value.side} 진입\n지갑: ${address}\n사이즈: ${change.value.sz}`;
+                    message = `NEW\n ${name}의 ${coin} lev: ${change.value.leverage}\nsize: ${change.value.size}\nprice: ${change.value.entry}, liqPx: ${change.value.liquidation}\n`;
                     break;
                 case 'UPDATE':
-                    message = `⬆️ ${name}의 ${coin} ${change.value.side} 수량 변경\n총: ${change.newValue.sz}`;
+                    // message = `UPDATE\n ${name}의 ${coin} lev: ${change.value.leverage}\nsize: ${change.value.size}\nprice: ${change.value.entry}, liqPx: ${change.value.liquidation}\n`;
+                    message = `UPDATE\n ${name}의 ${coin}\n이전: ${change.value.size}\n현재: ${change.newValue.size}`;
                     break;
                 case 'CLOSE':
                     message = `❌ ${name}의 ${coin} 포지션 종료`;
@@ -158,12 +154,6 @@ async function trackPositions() {
             }
             await sendTelegramNotification(message);
         }
-        
-        // Google Sheets 업데이트
-        // await updateGoogleSheets({
-        //     currentState: newState,
-        //     changes: changes
-        // });
     }
     
     // 현재 상태 저장
@@ -173,8 +163,11 @@ async function trackPositions() {
     logger.info('Position tracking completed.');
 }
 
-// 5분마다 실행
-cron.schedule('*/5 * * * *', trackPositions);
+async function start() {
+    addresses = await loadAddresses();
+    logger.info('Addresses reloaded', { addresses });
+    trackPositions();
+}
 
-// 초기 실행
-trackPositions(); 
+// 5분마다 주소를 다시 로드하고 포지션 추적 시작
+cron.schedule('*/5 * * * *', start);
