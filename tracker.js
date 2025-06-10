@@ -169,5 +169,5 @@ async function start() {
     trackPositions();
 }
 
-// 5분마다 주소를 다시 로드하고 포지션 추적 시작
-cron.schedule('*/5 * * * *', start);
+// 매분마다 주소를 다시 로드하고 포지션 추적 시작
+cron.schedule('* * * * *', start);
