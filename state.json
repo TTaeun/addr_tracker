@@ -1,2 +1,434 @@
 {
+  "1억좌::0x5b5d51203a0f9079f8aeb098a6523a13f298c060::BTC": {
+    "size": -2155.08,
+    "leverage": 20,
+    "entry": 106898.7,
+    "liquidation": 150458.73
+  },
+  "1억좌::0x5b5d51203a0f9079f8aeb098a6523a13f298c060::ETH": {
+    "size": -69183.57,
+    "leverage": 15,
+    "entry": 2612.98,
+    "liquidation": 4073.89
+  },
+  "1억좌::0x5b5d51203a0f9079f8aeb098a6523a13f298c060::SOL": {
+    "size": -372187.73,
+    "leverage": 20,
+    "entry": 167.29,
+    "liquidation": 403.43
+  },
+  "1억좌::0x5b5d51203a0f9079f8aeb098a6523a13f298c060::SUI": {
+    "size": -202238.8,
+    "leverage": 10,
+    "entry": 3.96,
+    "liquidation": 452.22
+  },
+  "1억좌::0x5b5d51203a0f9079f8aeb098a6523a13f298c060::HYPE": {
+    "size": -1213037.16,
+    "leverage": 5,
+    "entry": 37.67,
+    "liquidation": 112.36
+  },
+  "james wynn2::0x1f250df59a777d61cb8bd043c12970f3afe4f925::BTC": {
+    "size": 2956.32,
+    "leverage": 20,
+    "entry": 108638.7,
+    "liquidation": 100761.32
+  },
+  "james wynn::0x5078C2fBeA2b2aD61bc840Bc023E35Fce56BeDb6::BTC": {
+    "size": 0,
+    "leverage": 40,
+    "entry": 108455,
+    "liquidation": 0
+  },
+  "고래2::0x25cd302e37a69d70a6ef645daea5a7de38c66e2a::SOL": {
+    "size": 10000,
+    "leverage": 20,
+    "entry": 165.04,
+    "liquidation": 133.15
+  },
+  "고래3::0xa567501abf12f401c9e613b6323c43cf29b0f92c::ETH": {
+    "size": 438,
+    "leverage": 25,
+    "entry": 2754.87,
+    "liquidation": 0
+  },
+  "고래3::0xa567501abf12f401c9e613b6323c43cf29b0f92c::HYPE": {
+    "size": -70000,
+    "leverage": 10,
+    "entry": 34.32,
+    "liquidation": 74.26
+  },
+  "고래4::0x5b5d51203a0f9079f8aeb098a6523a13f298c060::BTC": {
+    "size": -2155.08,
+    "leverage": 20,
+    "entry": 106898.7,
+    "liquidation": 150469.12
+  },
+  "고래4::0x5b5d51203a0f9079f8aeb098a6523a13f298c060::ETH": {
+    "size": -69183.57,
+    "leverage": 15,
+    "entry": 2612.98,
+    "liquidation": 4074.1
+  },
+  "고래4::0x5b5d51203a0f9079f8aeb098a6523a13f298c060::SOL": {
+    "size": -372187.73,
+    "leverage": 20,
+    "entry": 167.29,
+    "liquidation": 403.54
+  },
+  "고래4::0x5b5d51203a0f9079f8aeb098a6523a13f298c060::SUI": {
+    "size": -202238.8,
+    "leverage": 10,
+    "entry": 3.96,
+    "liquidation": 452.39
+  },
+  "고래4::0x5b5d51203a0f9079f8aeb098a6523a13f298c060::HYPE": {
+    "size": -1213037.16,
+    "leverage": 5,
+    "entry": 37.67,
+    "liquidation": 112.38
+  },
+  "고래5::0xb83de012dba672c76a7dbbbf3e459cb59d7d6e36::BTC": {
+    "size": -1164.06,
+    "leverage": 40,
+    "entry": 108521.4,
+    "liquidation": 165591.63
+  },
+  "고래5::0xb83de012dba672c76a7dbbbf3e459cb59d7d6e36::ETH": {
+    "size": -59442.34,
+    "leverage": 15,
+    "entry": 2631.78,
+    "liquidation": 3867.38
+  },
+  "고래5::0xb83de012dba672c76a7dbbbf3e459cb59d7d6e36::SOL": {
+    "size": -151887.35,
+    "leverage": 20,
+    "entry": 166.39,
+    "liquidation": 600.17
+  },
+  "고래5::0xb83de012dba672c76a7dbbbf3e459cb59d7d6e36::HYPE": {
+    "size": -250911.04,
+    "leverage": 10,
+    "entry": 37.71,
+    "liquidation": 293.55
+  },
+  "이더 운전수::0xcb92c5988b1d4f145a7b481690051f03ead23a13::ETH": {
+    "size": -40000,
+    "leverage": 15,
+    "entry": 2793.81,
+    "liquidation": 2939.01
+  },
+  "파도고래::0x044d0932b02f5045bc00e0a6818b7f98ef504681::BTC": {
+    "size": 52.85,
+    "leverage": 40,
+    "entry": 107218.6,
+    "liquidation": 0
+  },
+  "파도고래::0x044d0932b02f5045bc00e0a6818b7f98ef504681::ETH": {
+    "size": -2096.76,
+    "leverage": 25,
+    "entry": 2799.81,
+    "liquidation": 7463.32
+  },
+  "파도고래::0x044d0932b02f5045bc00e0a6818b7f98ef504681::AAVE": {
+    "size": 2144.06,
+    "leverage": 10,
+    "entry": 293.09,
+    "liquidation": 0
+  },
+  "솔라나 담당일진::0xa0d66bab5f04cb3055cc2f6b0494cb33be32c2c2::SOL": {
+    "size": -92426.22,
+    "leverage": 20,
+    "entry": 161.5,
+    "liquidation": 187.46
+  },
+  "솔라나 담당일진::0xa0d66bab5f04cb3055cc2f6b0494cb33be32c2c2::HYPE": {
+    "size": 234344.42,
+    "leverage": 10,
+    "entry": 33.11,
+    "liquidation": 28.72
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::BTC": {
+    "size": 30.53,
+    "leverage": 40,
+    "entry": 108509.8,
+    "liquidation": 104465.45
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::ETH": {
+    "size": 1394.7,
+    "leverage": 25,
+    "entry": 2771.65,
+    "liquidation": 2527.1
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::SOL": {
+    "size": 24720.07,
+    "leverage": 20,
+    "entry": 163.38,
+    "liquidation": 146.68
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::SUI": {
+    "size": 38045.6,
+    "leverage": 10,
+    "entry": 3.44,
+    "liquidation": 3.19
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::kPEPE": {
+    "size": 169442207,
+    "leverage": 10,
+    "entry": 0.01,
+    "liquidation": 0.01
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::XRP": {
+    "size": 349510,
+    "leverage": 20,
+    "entry": 2.27,
+    "liquidation": 2.21
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::BCH": {
+    "size": 1157.49,
+    "leverage": 10,
+    "entry": 430.92,
+    "liquidation": 407.95
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::AAVE": {
+    "size": 7351.28,
+    "leverage": 10,
+    "entry": 298.93,
+    "liquidation": 284.22
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::COMP": {
+    "size": 2648.16,
+    "leverage": 5,
+    "entry": 60.18,
+    "liquidation": 53.47
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::MKR": {
+    "size": 525.98,
+    "leverage": 10,
+    "entry": 1996.97,
+    "liquidation": 1907.11
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::UNI": {
+    "size": 141017.29,
+    "leverage": 10,
+    "entry": 8,
+    "liquidation": 7.59
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::KAS": {
+    "size": 1631351,
+    "leverage": 3,
+    "entry": 0.08,
+    "liquidation": 0.06
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::JTO": {
+    "size": 357379,
+    "leverage": 5,
+    "entry": 2.17,
+    "liquidation": 1.92
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::WIF": {
+    "size": 208717,
+    "leverage": 10,
+    "entry": 0.92,
+    "liquidation": 0.78
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::TAO": {
+    "size": 401.26,
+    "leverage": 5,
+    "entry": 409.92,
+    "liquidation": 365.58
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::kFLOKI": {
+    "size": 5218300,
+    "leverage": 5,
+    "entry": 0.09,
+    "liquidation": 0.08
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::POPCAT": {
+    "size": 100646,
+    "leverage": 10,
+    "entry": 0.36,
+    "liquidation": 0.3
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::BRETT": {
+    "size": 4347616,
+    "leverage": 5,
+    "entry": 0.05,
+    "liquidation": 0.04
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::kNEIRO": {
+    "size": 1983.4,
+    "leverage": 5,
+    "entry": 0.5,
+    "liquidation": 0.44
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::PURR": {
+    "size": 1059201,
+    "leverage": 3,
+    "entry": 0.29,
+    "liquidation": 0.23
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::PNUT": {
+    "size": 1735352,
+    "leverage": 5,
+    "entry": 0.28,
+    "liquidation": 0.23
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::HYPE": {
+    "size": 28881.42,
+    "leverage": 10,
+    "entry": 41.43,
+    "liquidation": 35.26
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::VIRTUAL": {
+    "size": 34227.1,
+    "leverage": 5,
+    "entry": 2.28,
+    "liquidation": 1.86
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::PENGU": {
+    "size": 39667281,
+    "leverage": 5,
+    "entry": 0.01,
+    "liquidation": 0
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::FARTCOIN": {
+    "size": 981198,
+    "leverage": 10,
+    "entry": 1.37,
+    "liquidation": 1.15
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::SPX": {
+    "size": 282884.8,
+    "leverage": 5,
+    "entry": 1.66,
+    "liquidation": 1.44
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::KAITO": {
+    "size": 142783,
+    "leverage": 5,
+    "entry": 1.78,
+    "liquidation": 1.51
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::LAUNCHCOIN": {
+    "size": 1285457,
+    "leverage": 3,
+    "entry": 0.19,
+    "liquidation": 0.15
+  },
+  "상어2::0x625e239e46d3ad052e23f396de3a569f6fd504e7::RESOLV": {
+    "size": 667373,
+    "leverage": 3,
+    "entry": 0.38,
+    "liquidation": 0.3
+  },
+  "참치1::0xc36521d20275fd374f2e2bcf30d0a177b719bf8c::BTC": {
+    "size": 27.85,
+    "leverage": 40,
+    "entry": 110306.5,
+    "liquidation": 103069.23
+  },
+  "참치1::0xc36521d20275fd374f2e2bcf30d0a177b719bf8c::HYPE": {
+    "size": 27111.72,
+    "leverage": 10,
+    "entry": 43.94,
+    "liquidation": 36.39
+  },
+  "참치3::0xd39a2ce1d4c6bd06eaf9ba767071bca32b365b93::HYPE": {
+    "size": 200,
+    "leverage": 10,
+    "entry": 41.95,
+    "liquidation": 0
+  },
+  "참치4::0xe1b4e4d6320c65748a1900cf0329cb7221959d8a::BTC": {
+    "size": -10,
+    "leverage": 40,
+    "entry": 109841.3,
+    "liquidation": 119367.38
+  },
+  "참치4::0xe1b4e4d6320c65748a1900cf0329cb7221959d8a::SUI": {
+    "size": -125000,
+    "leverage": 10,
+    "entry": 3.43,
+    "liquidation": 3.93
+  },
+  "참치5::0x508e08d49decd97cc3c3e123de14e6d6a846e85a::SOL": {
+    "size": 6421.83,
+    "leverage": 20,
+    "entry": 167.26,
+    "liquidation": 134.32
+  },
+  "참치5::0x508e08d49decd97cc3c3e123de14e6d6a846e85a::HYPE": {
+    "size": 24736.71,
+    "leverage": 10,
+    "entry": 43.44,
+    "liquidation": 34.38
+  },
+  "광어2::0x93696148243b34770bc8ae07030ad9fb7e750138::BTC": {
+    "size": 22.98,
+    "leverage": 40,
+    "entry": 109433.7,
+    "liquidation": 97597.86
+  },
+  "메기1::0xc86781f99078e71c2cbf9cd8b9712d52b28b6e65::BTC": {
+    "size": 11.25,
+    "leverage": 40,
+    "entry": 109758.8,
+    "liquidation": 106126.96
+  },
+  "메기2::0xddfe0b953e0c88aaa8f01f769ffeb8c856e80f51::BTC": {
+    "size": 19.11,
+    "leverage": 40,
+    "entry": 106938.3,
+    "liquidation": 101052.39
+  },
+  "prompt 멸치::0xae42743b5d6a3594b7f95b5cebce64cfedc69318::PROMPT": {
+    "size": 515247,
+    "leverage": 5,
+    "entry": 0.19,
+    "liquidation": 0.14
+  },
+  "숏 장투::0x23f76c0dcc03163b1eb831975d50a29f6fe5120d::BTC": {
+    "size": -3.78,
+    "leverage": 40,
+    "entry": 110593.9,
+    "liquidation": 111688.38
+  },
+  "멸치4::0xb5be97c440d573e81ea3d2257432eb2ae646e265::BTC": {
+    "size": -31.54,
+    "leverage": 40,
+    "entry": 109440.6,
+    "liquidation": 112717.68
+  },
+  "멸치5::0xca8237d54fce40c9ea2aba76b39c1ee929a9ee3c::FARTCOIN": {
+    "size": 364141.4,
+    "leverage": 10,
+    "entry": 1.35,
+    "liquidation": 1.28
+  },
+  "멸치7::0x45f51f09ec0743f2b3d7c904b9ddc2eed9718691::BTC": {
+    "size": 10.08,
+    "leverage": 40,
+    "entry": 107888,
+    "liquidation": 106525.49
+  },
+  "멸치8::0x11134fe2b29c253c72cc371c2497972993c570f2::ETH": {
+    "size": -196.13,
+    "leverage": 25,
+    "entry": 2740.37,
+    "liquidation": 3334.7
+  },
+  "오늘의 고수::0x9d20242ff668718af2cfaa578f831538a3c3087a::ETH": {
+    "size": 298.57,
+    "leverage": 25,
+    "entry": 2734.92,
+    "liquidation": 2050.18
+  },
+  "역매매대상::0xe9083f9d8d09afafb53462e2695cc7a014d97136::BTC": {
+    "size": 0.02,
+    "leverage": 40,
+    "entry": 107105.4,
+    "liquidation": 0
+  }
 }

@@ -2,10 +2,10 @@
   "name": "addr_tracker",
   "version": "1.0.0",
   "description": "이 프로젝트는 Hyperliquid 지갑 주소의 열린 포지션 정보를 5분 간격으로 추적하여 Google Spreadsheet에 기록하고, 변경사항이 발생할 경우 Telegram으로 알림을 발송하는 시스템입니다.",
-  "main": "tracker.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node tracker.js"
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,7 @@
     "express": "^5.1.0",
     "node-cron": "^4.1.0",
     "node-fetch": "^3.3.2",
+    "uuid": "^11.1.0",
     "winston": "^3.17.0"
   }
 }

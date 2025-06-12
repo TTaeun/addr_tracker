@@ -35,28 +35,33 @@ async function fetchOpenPositions(address) {
 // Hyperliquid 가격 조회
 async function fetchPrice(coin, timestamp) {
     try {
-        const end = Math.floor(timestamp / 1000);
-        const start = end - 60;
+        const end = timestamp; // 그대로 사용 (밀리초)
+        const start = end - 60_000; // 1분 전 (60초 * 1000ms)
+
         const response = await fetch('https://api.hyperliquid.xyz/info', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 type: "candleSnapshot",
-                coin: coin,
-                interval: "1m",
-                startTime: start,
-                endTime: end
+                req: {
+                    coin: coin,
+                    interval: "1m",
+                    startTime: start,   // 밀리초
+                    endTime: end        // 밀리초
+                }
             })
         });
+
         const data = await response.json();
         if (Array.isArray(data) && data.length > 0) {
-            return data[data.length - 1].close;
+            return data[data.length - 1].c;
         }
     } catch (e) {
         console.error('fetchPrice error:', e);
     }
     return null;
 }
+
 
 // 텔레그램 메시지 전송
 async function sendTelegramNotification(botToken, chatId, message) {

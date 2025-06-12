@@ -2,8 +2,8 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
-
 const logger = require('./utils/logger');
+
 const { getOrCreateTrId, deleteTrId } = require('./utils/security');
 const {
     loadAddressesFromGAS,
@@ -65,6 +65,8 @@ function detectChanges(oldState, newState) {
 
 async function addHistoryAsync(entry) {
     historyBuffer.push(entry);
+
+    logger.info("historyBuffer: ", historyBuffer);
 }
 
 function flushHistory() {
@@ -135,7 +137,7 @@ async function _start() {
                     message = `NEW\n ${name}의 ${coin} lev: ${change.value.leverage}\nsize: ${change.value.size}\nprice: ${change.value.entry}, liqPx: ${change.value.liquidation}\n`;
                     break;
                 case 'UPDATE':
-                    message = `UPDATE\n ${name}의 ${coin}\n이전: ${change.value.size}\n현재: ${change.newValue.size}`;
+                    message = `UPDATE\n ${name}의 ${coin}\n이전: ${change.oldValue.size}\n현재: ${change.newValue.size}`;
                     break;
                 case 'CLOSE':
                     message = `❌ ${name}의 ${coin} 포지션 종료`;
@@ -186,7 +188,7 @@ function start() {
     // 매분마다 주소를 다시 로드하고 포지션 추적 시작
     cron.schedule('* * * * *', async () => {
         addresses = await loadAddressesFromGAS(process.env.GAS_URL);
-        logger.info('Addresses reloaded', { addresses });
+        // logger.info('Addresses reloaded', { addresses });
         await _start();
     });
 }
