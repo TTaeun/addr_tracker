@@ -4,6 +4,8 @@ const path = require('path');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const cron = require('node-cron');
 const logger = require('./utils/logger');
+const { v4: uuidv4 } = require('uuid'); // npm install uuid
+const trIdMap = {}; // key: `${name}::${address}::${coin}`, value: trId
 
 // 상태 파일 경로
 const STATE_FILE = path.join(__dirname, 'state.json');
@@ -173,15 +175,14 @@ async function trackPositions() {
     if (changes.length > 0) {
         for (const change of changes) {
             const [name, address, coin] = change.key.split('::');
-            
+            const trId = getOrCreateTrId(change.key, change.type);
+
             let message = '';
-            
             switch (change.type) {
                 case 'NEW':
                     message = `NEW\n ${name}의 ${coin} lev: ${change.value.leverage}\nsize: ${change.value.size}\nprice: ${change.value.entry}, liqPx: ${change.value.liquidation}\n`;
                     break;
                 case 'UPDATE':
-                    // 확인 필요
                     message = `UPDATE\n ${name}의 ${coin}\n이전: ${change.value.size}\n현재: ${change.newValue.size}`;
                     break;
                 case 'CLOSE':
@@ -191,6 +192,7 @@ async function trackPositions() {
             await sendTelegramNotification(message);
 
             const entry = {
+                trId,
                 timestamp: Date.now(),
                 type: change.type,
                 name,
@@ -201,13 +203,18 @@ async function trackPositions() {
                 }
             };
 
-            if(change.type === 'UPDATE' || change.type === 'CLOSE') {
+            if (change.type === 'UPDATE' || change.type === 'CLOSE') {
                 entry.value.price = await fetchPrice(coin, Date.now());
             } else {
                 entry.value.entry = change.value.entry;
             }
 
             await addHistoryAsync(entry);
+
+            // CLOSE면 trIdMap에서 삭제(선택)
+            if (change.type === 'CLOSE') {
+                delete trIdMap[change.key];
+            }
         }
     }
     
@@ -253,5 +260,12 @@ async function fetchPrice(coin, timestamp) {
         console.error('fetchClosePrice error:', e);
     }
     return null;
+}
+
+function getOrCreateTrId(key, type) {
+    if (type === 'NEW' || !trIdMap[key]) {
+        trIdMap[key] = uuidv4();
+    }
+    return trIdMap[key];
 }
 
