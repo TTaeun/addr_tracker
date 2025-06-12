@@ -107,6 +107,41 @@ function detectChanges(oldState, newState) {
     return changes;
 }
 
+const HISTORY_FILE = path.join(__dirname, 'history.json');
+let historyBuffer = [];
+const FLUSH_INTERVAL = 60 * 60 * 1000; // 1시간
+
+function addHistory(entry) {
+    historyBuffer.push(entry);
+}
+
+function flushHistory() {
+    if (historyBuffer.length === 0) return;
+    const dateStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const dir = path.join(__dirname, 'history');
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    const HISTORY_FILE = path.join(dir, `${dateStr}.json`);
+    let historyArr = [];
+    if (fs.existsSync(HISTORY_FILE)) {
+        try {
+            historyArr = JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8'));
+        } catch (e) {
+            historyArr = [];
+        }
+    }
+    historyArr = historyArr.concat(historyBuffer);
+    fs.writeFileSync(HISTORY_FILE, JSON.stringify(historyArr, null, 2));
+    historyBuffer = [];
+    console.log(`[history] Flushed ${historyArr.length} entries to ${HISTORY_FILE}`);
+}
+
+// 1시간마다 flush
+setInterval(flushHistory, FLUSH_INTERVAL);
+
+// 서버 종료 시 flush
+process.on('exit', flushHistory);
+process.on('SIGINT', () => { flushHistory(); process.exit(); });
+
 // 메인 추적 함수
 async function trackPositions() {
     logger.info('Starting position tracking...');
@@ -145,7 +180,7 @@ async function trackPositions() {
                     message = `NEW\n ${name}의 ${coin} lev: ${change.value.leverage}\nsize: ${change.value.size}\nprice: ${change.value.entry}, liqPx: ${change.value.liquidation}\n`;
                     break;
                 case 'UPDATE':
-                    // message = `UPDATE\n ${name}의 ${coin} lev: ${change.value.leverage}\nsize: ${change.value.size}\nprice: ${change.value.entry}, liqPx: ${change.value.liquidation}\n`;
+                    // 확인 필요
                     message = `UPDATE\n ${name}의 ${coin}\n이전: ${change.value.size}\n현재: ${change.newValue.size}`;
                     break;
                 case 'CLOSE':
@@ -160,6 +195,18 @@ async function trackPositions() {
     currentState = newState;
     fs.writeFileSync(STATE_FILE, JSON.stringify(currentState, null, 2));
     
+    // 변경사항 히스토리 저장
+    for (const change of changes) {
+        addHistory({
+            timestamp: Date.now(),
+            type: change.type,
+            name,
+            address,
+            coin,
+            value: change.value
+        });
+    }
+    
     logger.info('Position tracking completed.');
 }
 
@@ -171,3 +218,32 @@ async function start() {
 
 // 매분마다 주소를 다시 로드하고 포지션 추적 시작
 cron.schedule('* * * * *', start);
+
+async function fetchPrice(coin, timestamp) {
+    try {
+        // 예시: Hyperliquid의 kline(캔들) API 사용 (1분봉)
+        const end = Math.floor(timestamp / 1000); // 초 단위
+        const start = end - 60; // 1분 전
+        const response = await fetch('https://api.hyperliquid.xyz/info', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: "candleSnapshot",
+                coin: coin,
+                interval: "1m",
+                startTime: start,
+                endTime: end
+            })
+        });
+        const data = await response.json();
+        // data 구조에 따라 종가(close) 추출
+        // 예: [{ close: "1234.5", ... }]
+        if (Array.isArray(data) && data.length > 0) {
+            return data[data.length - 1].close;
+        }
+    } catch (e) {
+        console.error('fetchClosePrice error:', e);
+    }
+    return null;
+}
+
