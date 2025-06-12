@@ -198,8 +198,8 @@ function start() {
     // 서버 종료 시 flush
     process.on('exit', flushHistory);
     process.on('SIGINT', () => { flushHistory(); process.exit(); });
-    // 매분마다 주소를 다시 로드하고 포지션 추적 시작
-    cron.schedule('* * * * *', async () => {
+    // 매 30초마다 주소를 다시 로드하고 포지션 추적 시작
+    cron.schedule('*/30 * * * * *', async () => {
         addresses = await loadAddressesFromGAS(process.env.GAS_URL);
         // logger.info('Addresses reloaded', { addresses });
         await _start();
