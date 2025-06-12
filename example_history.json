@@ -1,4 +1,4 @@
-{
+{{
     "timestamp": "1231243345",
     "type": "NEW",
     "name": "병신",
@@ -9,8 +9,7 @@
         "entry": "71200",
         "liquidation": "69000"
     }
-}
-
+},
 {
     "timestamp": "1231243345",
     "type": "UPDATE",
@@ -19,11 +18,10 @@
     "coin": "BTC",
     "value": {
         "size": "0.1", //  변경된 수량, 이전 0.5 -> 변경 후 0.6이면 해당 value 는 0.1
-        "entry": "71200" // 변경 수량 진입 가격, -> hyper luquid api로 가격 조회
+        "price": "71200" // 변경 수량 진입 가격, -> hyper luquid api로 가격 조회
         // "liquidation": "69000"
     }
-}
-
+}, 
 {
     "timestamp": "1231243345",
     "type": "CLOSE",
@@ -32,7 +30,7 @@
     "coin": "BTC",
     "value": {
         "size": "0.1", //  전체 수량, 이전 0.5 -> 변경 후 0.6이면 해당 value 는 0.6
-        "close": "71200" // 포지션 종료 가격, -> timestamp로 hyper luquid api로 가격 조회
+        "price": "71200" // 포지션 종료 가격, -> timestamp로 hyper luquid api로 가격 조회
         // "liquidation": "69000"
     }
-}
+}}

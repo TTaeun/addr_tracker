@@ -111,7 +111,7 @@ const HISTORY_FILE = path.join(__dirname, 'history.json');
 let historyBuffer = [];
 const FLUSH_INTERVAL = 60 * 60 * 1000; // 1시간
 
-function addHistory(entry) {
+async function addHistoryAsync(entry) {
     historyBuffer.push(entry);
 }
 
@@ -172,8 +172,9 @@ async function trackPositions() {
     // 변경사항이 있으면 알림 전송 및 시트 업데이트
     if (changes.length > 0) {
         for (const change of changes) {
-            let message = '';
             const [name, address, coin] = change.key.split('::');
+            
+            let message = '';
             
             switch (change.type) {
                 case 'NEW':
@@ -188,24 +189,31 @@ async function trackPositions() {
                     break;
             }
             await sendTelegramNotification(message);
+
+            const entry = {
+                timestamp: Date.now(),
+                type: change.type,
+                name,
+                address,
+                coin,
+                value: {
+                    size: change.type === 'UPDATE' ? (change.newValue.size - change.oldValue.size).toString() : change.value.size
+                }
+            };
+
+            if(change.type === 'UPDATE' || change.type === 'CLOSE') {
+                entry.value.price = await fetchPrice(coin, Date.now());
+            } else {
+                entry.value.entry = change.value.entry;
+            }
+
+            await addHistoryAsync(entry);
         }
     }
     
     // 현재 상태 저장
     currentState = newState;
     fs.writeFileSync(STATE_FILE, JSON.stringify(currentState, null, 2));
-    
-    // 변경사항 히스토리 저장
-    for (const change of changes) {
-        addHistory({
-            timestamp: Date.now(),
-            type: change.type,
-            name,
-            address,
-            coin,
-            value: change.value
-        });
-    }
     
     logger.info('Position tracking completed.');
 }
