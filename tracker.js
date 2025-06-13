@@ -159,14 +159,14 @@ async function _start() {
             // 주소에 따라 다른 텔레그램으로 전송
             if (NOTIFY_ADDRESSES.includes(address.toLowerCase())) {
                 await sendTelegramNotification(
-                    process.env.TOTAL_TRACKER_BOT_TOKEN,
-                    process.env.TOTAL_TRACKER_BOT_CHAT_ID,
+                    process.env.FAVO_TRACKER_BOT_TOKEN,
+                    process.env.FAVO_TRACKER_BOT_CHAT_ID,
                     message
                 );
             } else {
                 await sendTelegramNotification(
-                    process.env.SUB_TRACKER_BOT_TOKEN,
-                    process.env.SUB_TRACKER_BOT_CHAT_ID,
+                    process.env.TOTAL_TRACKER_BOT_TOKEN,
+                    process.env.TOTAL_TRACKER_BOT_CHAT_ID,
                     message
                 );
             }
