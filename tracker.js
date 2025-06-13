@@ -15,11 +15,14 @@ const { flushBufferToFile, readJsonFile } = require('./utils/file');
 
 const NOTIFY_ADDRESSES = [
     '0x9d20242ff668718af2cfaa578f831538a3c3087a', // 오늘의 고수
+    '0x51d99a4022a55cad07a3c958f0600d8bb0b39921', // 트럼프 내부자자
     '0xe9083f9d8d09afafb53462e2695cc7a014d97136', // 역매매 대상
     '0xcb92c5988b1d4f145a7b481690051f03ead23a13', // 이더 운전수
     '0xa0d66bab5f04cb3055cc2f6b0494cb33be32c2c2', // 솔라나 담당일진
     '0xaa10a82091e5e1312b080733464b9e70883e4695', // 주목할만한 인물
     '0x7079b5814032c0b02425135f06f32a0084cdf2d2', // 초단기 퇴장 ?
+    '0x9321d8117e73b0c79035f0e87debcfd8dbb1d75a', // 백전백승,
+    '0x5b5d51203a0f9079f8aeb098a6523a13f298c060' // 시드가 1억달러
     // ... 추가
 ].map(a => a.toLowerCase());
 
@@ -140,21 +143,32 @@ async function _start() {
             const [name, address, coin] = change.key.split('::');
             const trId = getOrCreateTrId(change.key, change.type);
 
-            // 알림은 특정 주소만
+            let message = '';
+            switch (change.type) {
+                case 'NEW':
+                    message = `NEW\n ${name}의 ${coin} lev: ${change.value.leverage}\nsize: ${change.value.size}\nprice: ${change.value.entry}, liqPx: ${change.value.liquidation}\n`;
+                    break;
+                case 'UPDATE':
+                    message = `UPDATE\n ${name}의 ${coin}\n이전: ${change.oldValue.size}\n현재: ${change.newValue.size}`;
+                    break;
+                case 'CLOSE':
+                    message = `❌ ${name}의 ${coin} 포지션 종료`;
+                    break;
+            }
+
+            // 주소에 따라 다른 텔레그램으로 전송
             if (NOTIFY_ADDRESSES.includes(address.toLowerCase())) {
-                let message = '';
-                switch (change.type) {
-                    case 'NEW':
-                        message = `NEW\n ${name}의 ${coin} lev: ${change.value.leverage}\nsize: ${change.value.size}\nprice: ${change.value.entry}, liqPx: ${change.value.liquidation}\n`;
-                        break;
-                    case 'UPDATE':
-                        message = `UPDATE\n ${name}의 ${coin}\n이전: ${change.oldValue.size}\n현재: ${change.newValue.size}`;
-                        break;
-                    case 'CLOSE':
-                        message = `❌ ${name}의 ${coin} 포지션 종료`;
-                        break;
-                }
-                await sendTelegramNotification(process.env.BOT_TOKEN, process.env.CHAT_ID, message);
+                await sendTelegramNotification(
+                    process.env.TOTAL_TRACKER_BOT_TOKEN,
+                    process.env.TOTAL_TRACKER_BOT_CHAT_ID,
+                    message
+                );
+            } else {
+                await sendTelegramNotification(
+                    process.env.SUB_TRACKER_BOT_TOKEN,
+                    process.env.SUB_TRACKER_BOT_CHAT_ID,
+                    message
+                );
             }
 
             // history는 모든 주소 저장
