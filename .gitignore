@@ -1,5 +1,7 @@
 # Node.js
 node_modules/
+history/
+state.json
 
 # Logs
 logs
