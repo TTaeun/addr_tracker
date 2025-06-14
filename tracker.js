@@ -201,7 +201,11 @@ async function _start() {
     
     // 현재 상태 저장
     currentState = newState;
-    fs.writeFileSync(STATE_FILE, JSON.stringify(currentState, null, 2));
+    if (addresses && addresses.length > 0) {
+        fs.writeFileSync(STATE_FILE, JSON.stringify(currentState, null, 2));
+    } else {
+        logger.warn('주소 목록이 비어있어 state.json 저장을 건너뜁니다.');
+    }
     
     logger.info('Position tracking completed.');
 }
